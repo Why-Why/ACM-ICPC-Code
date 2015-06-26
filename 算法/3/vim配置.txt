@@ -1,0 +1,49 @@
+set nu
+set history=1000000
+set tabstop=4
+set shiftwidth=4
+set smarttab
+set cindent
+colo evening
+set nobackup
+set noswapfile
+set mouse=a
+
+nmap <c-c> ggvG"+y
+
+map <F5> :call CR()<CR>
+
+func! CR()
+	exec "w"
+	exec "!g++ % -o %<"
+endfunc
+
+imap <c-]> {<cr>}<c-o>O<left><right>
+map <F2> :call SetTitle()<CR>
+	
+func SetTitle()
+	let l = 0
+	let l = l + 1 | call setline(l,'#include <stdio.h>')
+	let l = l + 1 | call setline(l,'#include <string.h>')
+	let l = l + 1 | call setline(l,'#include <iostream>')
+	let l = l + 1 | call setline(l,'#include <algorithm>')
+	let l = l + 1 | call setline(l,'#include <vector>')
+	let l = l + 1 | call setline(l,'#include <queue>')
+	let l = l + 1 | call setline(l,'#include <set>')
+	let l = l + 1 | call setline(l,'#include <map>')
+	let l = l + 1 | call setline(l,'#include <string>')
+	let l = l + 1 | call setline(l,'#include <math.h>')
+	let l = l + 1 | call setline(l,'#include <stdlib.h>')
+	let l = l + 1 | call setline(l,'#include <time.h>')
+	let l = l + 1 | call setline(l,'#include <climits>')
+	let l = l + 1 | call setline(l,'')
+	let l = l + 1 | call setline(l,'using namespace std;')
+	let l = l + 1 | call setline(l,'')
+	let l = l + 1 | call setline(l,'int main()')
+	let l = l + 1 | call setline(l,'{')
+	let l = l + 1 | call setline(l,'	//freopen("in.txt","r",stdin);')
+	let l = l + 1 | call setline(l,'	//freopen("out.txt","w",stdout);')
+	let l = l + 1 | call setline(l,'	')
+	let l = l + 1 | call setline(l,'	return 0;')
+	let l = l + 1 | call setline(l,'}')
+endfunc

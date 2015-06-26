@@ -1,0 +1,51 @@
+// KMP算法求模式匹配，复杂度 O(n+m)。
+// 输入：n，s1，m，s2。
+// 输出：s2在s1中的个数。
+
+const int MaxN=1000006;
+const int MaxM=10004;
+
+int next[MaxM];
+
+void KMP_pre(int m,char s[])
+{
+	int i=0,j=-1;
+
+	next[0]=-1;
+
+	while(i<m)
+	{
+		while(j!=-1 && s[i]!=s[j])
+			j=next[j];
+
+		++i;
+		++j;
+
+		next[i]=j;
+	}
+}
+
+int KMP(int n,char s1[],int m,char s2[])
+{
+	int i=0,j=0;
+	int ret=0;
+
+	KMP_pre(m,s2);
+
+	while(i<n)
+	{
+		while(j!=-1 && s1[i]!=s2[j])
+			j=next[j];
+
+		++i;
+		++j;
+
+		if(j>=m)
+		{
+			++ret;
+			j=next[j];
+		}
+	}
+
+	return ret;
+}

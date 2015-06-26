@@ -1,0 +1,2 @@
+1,双连通分量那里init里面给Belong清零。
+2,割点里面init给Bridge清零。

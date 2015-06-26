@@ -1,0 +1,30 @@
+// 数位dp，复杂度 O(10*n),(n为数的长度)。
+// 输入：num(num[0]是最低位)。
+// 输出：个数(可更改)。
+// 注意：dp初始化为-1。
+// 原理：dep表示深度，pre表示前一个数，e表示前一个数是否等于num。
+
+int dp[10][10];
+int num[10];
+
+int dfs(int dep,int pre,bool e)
+{
+	if(dep==-1)
+		return 1;	/////
+
+	if(!e && dp[dep][pre]!=-1)
+		return dp[dep][pre];
+
+	int ret=0;
+	int u=e ? num[dep] : 9;
+
+	for(int i=0;i<=u;++i)
+		if(i!=4 && (pre!=6 || i!=2))			/////
+			ret+=dfs(dep-1,i,i==u && e);
+
+	if(!e)
+		dp[dep][pre]=ret;
+
+	return ret;
+}
+

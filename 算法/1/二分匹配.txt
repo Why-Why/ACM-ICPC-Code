@@ -1,0 +1,274 @@
+// 匈牙利算法求二分匹配(临接矩阵)，复杂度 O(VE)。
+// 输入：边集line，uN，vN。
+// 输出：linker(每个v匹配的u，-1为无。)，最大匹配数。
+// 注意：需要先初始化为二分图，先使用init初始化，然后使用addEdge加边，可以修改vis提高效率。
+
+const int MaxU=110;
+const int MaxV=310;
+
+bool vis[MaxV];
+int linker[MaxV];
+int uN,vN;
+int line[MaxU][MaxV];
+
+bool find(int u)
+{
+	for(int v=1;v<=vN;++v)
+		if(line[u][v] && !vis[v])
+		{
+			vis[v]=1;
+
+			if(linker[v]==-1 || find(linker[v]))
+			{
+				linker[v]=u;
+				
+				return 1;
+			}
+		}
+
+	return 0;
+}
+
+int Hungary()
+{
+	int ret=0;
+
+	for(int u=1;u<=uN;++u)
+	{
+		memset(vis,0,sizeof(vis));
+
+		if(find(u))
+			++ret;
+	}
+
+	return ret;
+}
+
+void addEdge(int u,int v)
+{
+	line[u][v]=1;
+}
+
+void init(int _uN,int _vN)
+{
+	uN=_uN;
+	vN=_vN;
+
+	for(int i=1;i<=vN;++i)
+	{
+		linker[i]=-1;
+
+		for(int j=1;j<=uN;++j)
+			line[j][i]=0;
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+// 匈牙利算法求二分匹配(前向星)，复杂度 O(VE)。
+// 输入：边集E，uN，vN。
+// 输出：linker，最大匹配数。
+// 注意：需要先初始化为二分图，先使用init初始化，然后使用addEdge加边，可以修改vis提高效率。
+
+const int MaxU=110;
+const int MaxV=310;
+const int MaxM=MaxU*MaxV;
+const int INF=10e8;
+
+struct Edge
+{
+	int to,next;
+};
+
+Edge E[MaxM];
+int head[MaxU],Ecou=0;
+bool vis[MaxV];
+int linker[MaxV];
+
+bool find(int u)
+{
+	int v;
+
+	for(int i=head[u];i!=-1;i=E[i].next)
+	{
+		v=E[i].to;
+
+		if(!vis[v])
+		{
+			vis[v]=1;
+
+			if(linker[v]==-1 || find(linker[v]))
+			{
+				linker[v]=u;
+
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+int Hungary(int uN)
+{
+	int ret=0;
+
+	for(int i=1;i<=uN;++i)
+	{
+		memset(vis,0,sizeof(vis));
+
+		if(find(i))
+			++ret;
+	}
+
+	return ret;
+}
+
+void addEdge(int u,int v)
+{
+	E[Ecou].to=v;
+	E[Ecou].next=head[u];
+	head[u]=Ecou;
+	++Ecou;
+}
+
+void init(int uN,int vN)
+{
+	Ecou=0;
+
+	for(int i=1;i<=uN;++i)
+		head[i]=-1;
+
+	for(int i=1;i<=vN;++i)
+		linker[i]=-1;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// Hopcroft-Carp 算法求二分匹配，复杂度 O(sqrt(V)＊E)。
+// 输入：边集E(使用vector)，uN，vN。
+// 输出：linkU，linkV，最大匹配数。
+// 注意：需要先初始化为二分图，先使用init初始化，然后使用addEdge加边，可以修改vis提高效率，使用MaxMatch函数获得结果。
+
+const int MaxU=110;
+const int MaxV=310;
+const int MaxM=MaxU*MaxV;
+const int INF=10e8;
+
+vector <int> E[MaxU];
+int dis,disU[MaxU],disV[MaxV];
+int linkU[MaxU],linkV[MaxV];
+bool vis[MaxV];
+
+bool searchPath(int uN,int vN)
+{
+	queue <int> que;
+	int u,v;
+	int len;
+
+	dis=INF;
+
+	for(int i=1;i<=uN;++i)
+		if(linkU[i]==-1)
+		{
+			que.push(i);
+			disU[i]=0;
+		}
+		else
+			disU[i]=-1;
+	for(int i=1;i<=vN;++i)
+		disV[i]=-1;
+
+	while(!que.empty())
+	{
+		u=que.front();
+		que.pop();
+
+		if(disU[u]>dis)
+			break;
+
+		len=E[u].size();
+
+		for(int i=0;i<len;++i)
+		{
+			v=E[u][i];
+
+			if(disV[v]==-1)
+			{
+				disV[v]=disU[u]+1;
+				
+				if(linkV[v]==-1)
+					dis=disV[v];
+				else
+				{
+					disU[linkV[v]]=disV[v]+1;
+					que.push(linkV[v]);
+				}
+			}
+		}
+	}
+
+	return dis != INF;
+}
+
+bool find(int u)
+{
+	int len=E[u].size();
+	int v;
+
+	for(int i=0;i<len;++i)
+	{
+		v=E[u][i];
+
+		if(!vis[v] && disV[v]==disU[u]+1)
+		{
+			vis[v]=1;
+
+			if(linkV[v]!=-1 && disV[v]==dis)
+				continue;
+
+			if(linkV[v]==-1 || find(linkV[v]))
+			{
+				linkV[v]=u;
+				linkU[u]=v;
+
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+int MaxMatch(int uN,int vN)
+{
+	int ret=0;
+
+	while(searchPath(uN,vN))
+	{
+		for(int v=1;v<=vN;++v)
+			vis[v]=0;
+
+		for(int u=1;u<=uN;++u)
+			if(linkU[u]==-1 && find(u))
+				++ret;
+	}
+
+	return ret;
+}
+
+void addEdge(int u,int v)
+{
+	E[u].push_back(v);
+}
+
+void init(int uN,int vN)
+{
+	for(int i=1;i<=uN;++i)
+		E[i].clear();
+
+	for(int i=1;i<=uN;++i)
+		linkU[i]=-1;
+	for(int i=1;i<=vN;++i)
+		linkV[i]=-1;
+}

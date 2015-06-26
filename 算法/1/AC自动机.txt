@@ -1,0 +1,102 @@
+// AC自动机进行多模式串匹配，复杂度 O(n+km)。
+// 输入：k个模式串，要搜索的串。
+// 输出：有几个模式串出现在基串中(可以改成出现几次。)。
+// 注意：先使用Init初始化，然后使用Insert插入，然后Build，然后Query。
+// 原理：模式串构建一个Trie，然后构建失败指针fail。
+
+const int MaxL=100010*5;
+const int MaxC=26;
+
+int que[500010];
+int first,last;
+
+struct AC_auto
+{
+	int next[MaxL][MaxC],fail[MaxL],word[MaxL];		// 这个节点结尾的单词的个数。
+	int root,Tp;
+
+	int Newnode()
+	{
+		for(int i=0;i<MaxC;++i)
+			next[Tp][i]=-1;
+		word[Tp++]=0;
+
+		return Tp-1;
+	}
+
+	void Init()
+	{
+		Tp=0;
+		root=Newnode();
+		first=last=0;
+	}
+
+	void Insert(char s[])
+	{
+		int p=root;
+		for(int i=0;s[i];++i)
+		{
+			if(next[p][s[i]-'a']==-1)	next[p][s[i]-'a']=Newnode();
+			p=next[p][s[i]-'a'];
+		}
+		++word[p];
+	}
+
+	void Build()
+	{
+		int p,temp;
+
+		fail[root]=-1;
+		que[last++]=root;
+
+		while(last-first)
+		{
+			p=que[first++];
+			for(int i=0;i<MaxC;++i)
+				if(next[p][i]!=-1)
+				{
+					if(p==root)	fail[next[p][i]]=root;
+					else
+					{
+						temp=fail[p];
+						while(temp!=-1)
+						{
+							if(next[temp][i]!=-1)
+							{
+								fail[next[p][i]]=next[temp][i];
+								break;
+							}
+							temp=fail[temp];
+						}
+						
+						if(temp==-1)	fail[next[p][i]]=root;
+					}
+					que[last++]=next[p][i];
+				}
+		}
+	}
+
+	int Query(char s[])
+	{
+		int p=root,temp;
+		int ret=0;
+
+		for(int i=0;s[i];++i)
+		{
+			while(p!=root && next[p][s[i]-'a']==-1)
+				p=fail[p];
+				
+			if(next[p][s[i]-'a']!=-1)	p=next[p][s[i]-'a'];
+			else	p=root;
+
+			temp=p;
+			while(temp!=root)
+			{
+				ret+=word[temp];
+				word[temp]=0;				//!!!
+				temp=fail[temp];
+			}
+		}
+		return ret;
+	}
+};

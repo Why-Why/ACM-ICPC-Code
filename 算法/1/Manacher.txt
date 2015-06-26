@@ -1,0 +1,46 @@
+// Manacher算法求最长回文子串，复杂度 O(n)。
+// 输入：字符串s，长度len。
+// 输出：最长回文子串的长度。
+// 注意：开头和结尾加上不同的不会用到的标识符，两个字符之间也要加上另一个标识符。
+
+const int MaxN=1000005;
+
+char Mt[MaxN*2];			// a temp string.
+int Mp[MaxN*2];
+
+int Manacher(int len,char s[])
+{
+	int Mx=0,id=0,l=0;
+	int ret=0;
+
+	Mt[l++]='$';		// !!!
+	Mt[l++]='#';
+	for(int i=0;i<len;++i)
+	{
+		Mt[l++]=s[i];
+		Mt[l++]='#';
+	}
+	Mt[l]=0;			// !!!
+
+	for(int i=1;i<l;++i)
+	{
+		if(Mx>i)
+			Mp[i]=min(Mp[2*id-i],Mx-i);
+		else
+			Mp[i]=1;
+
+		while(Mt[i+Mp[i]]==Mt[i-Mp[i]])
+			++Mp[i];
+
+		if(Mp[i]+i>Mx)
+		{
+			Mx=Mp[i]+i;
+			id=i;
+		}
+
+		if(Mp[i]-1>ret)
+			ret=Mp[i]-1;
+	}
+
+	return ret;
+}

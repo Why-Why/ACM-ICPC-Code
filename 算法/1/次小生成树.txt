@@ -1,0 +1,85 @@
+// Prim算法求次小生成树，复杂度 O(n^2)。
+// 输入：cost，n。
+// 输出：最小生产树 或 次小生成树。
+// 注意：cost数组不连通的边为INF。
+
+const int MaxN=110;
+const int INF=10e8;
+
+bool vis[MaxN];
+bool visEdge[MaxN][MaxN];			//
+int lowc[MaxN];
+int fa[MaxN];
+int maxc[MaxN][MaxN];
+
+int Prim(int cost[][MaxN],int n)
+{
+	int ans=0;
+	int minn,k;
+	
+	memset(vis,0,sizeof(vis));
+	memset(maxc,0,sizeof(maxc));
+	memset(visEdge,0,sizeof(visEdge));
+
+	vis[1]=1;
+	fa[1]=-1;
+
+	for(int i=2;i<=n;++i)		//
+	{
+		lowc[i]=cost[1][i];
+		fa[i]=1;
+	}
+
+	for(int i=1;i<n;++i)		//
+	{
+		minn=INF;
+		k=-1;
+
+		for(int j=1;j<=n;++j)
+			if(!vis[j] && minn>lowc[j])
+			{
+				minn=lowc[j];
+				k=j;
+			}
+
+		if(minn==INF)
+			return -1;
+
+		ans+=minn;
+		vis[k]=1;
+		visEdge[k][fa[k]]=visEdge[fa[k]][k]=1;
+
+		for(int j=1;j<=n;++j)
+		{
+			if(vis[j])
+				maxc[k][j]=maxc[j][k]=max(maxc[j][fa[k]],minn);
+			if(!vis[j] && lowc[j]>cost[k][j])
+			{
+				lowc[j]=cost[k][j];
+				fa[j]=k;
+			}
+		}
+	}
+
+	return ans;
+}
+
+int getCST(int cost[][MaxN],int n)
+{
+	int ans=Prim(cost,n);
+	int minn=INF;
+
+	for(int i=1;i<=n;++i)
+		for(int j=1;j<=n;++j)
+			if(visEdge[i][j]==0)
+			{
+				visEdge[i][j]=visEdge[j][i]=1;
+
+				if(minn>cost[i][j]-maxc[i][j])
+					minn=cost[i][j]-maxc[i][j];
+			}
+
+	return ans+minn;		/////
+}
+
+/////////////////////////////////////////////////////////////////////

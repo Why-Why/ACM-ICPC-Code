@@ -1,0 +1,165 @@
+// 线段树，单点更新，区间更新。
+
+#define lc po*2
+#define rc po*2+1
+#define lson L,M,lc
+#define rson M+1,R,rc
+
+const int MaxN=100000;
+
+int BIT[MaxN*4];
+int COL[MaxN*4];			/////
+int XOR[MaxN*4];			/////
+
+void pushUP(int po)
+{
+	BIT[po]=BIT[lc]+BIT[rc];
+}
+
+void pushDown(int po,int len)			/////
+{
+	if(COL[po])			/////
+	{
+		//BIT[lc];
+		//BIT[rc];
+		COL[lc]=COL[rc]=COL[po];			// or +=
+		COL[po]=0;
+	}
+
+	if(XOR[po])			/////
+	{
+		/////
+	}
+}
+
+void build_tree(int L,int R,int po)
+{
+	if(R==L)
+	{
+		//BIT[po];
+		//COL[po];
+		return;
+	}
+
+	int M=(L+R)/2;
+
+	build_tree(lson);
+	build_tree(rson);
+	pushUP(po);
+}
+
+int query(int ql,int qr,int L,int R,int po)
+{
+	if(ql<=L && qr>=R)
+		return BIT[po];
+
+	pushDown(po,R-L+1);			//
+
+	int M=(L+R)/2;
+	int ret=0;
+
+	if(ql<=M)
+		ret+=query(ql,qr,lson);		/////
+	if(qr>M)
+		ret+=query(ql,qr,rson);		/////
+
+	return ret;
+}
+
+void update_dot(int uc,int add,int L,int R,int po)
+{
+	if(L==R)
+	{
+		BIT[po]+=add;
+		return;
+	}
+
+	int M=(L+R)/2;
+
+	if(uc<=M)
+		update_dot(uc,add,lson);
+	else
+		update_dot(uc,add,rson);
+
+	pushUP(po);
+}
+
+void update_range(int ul,int ur,int ut,int L,int R,int po)
+{
+	if(ul<=L && ur>=R)
+	{
+		//BIT[po];
+		//COL[po];
+
+		return;
+	}
+
+	pushDown(po,R-L+1);
+
+	int M=(L+R)/2;
+
+	if(ul<=M)
+		update_range(ul,ur,ut,lson);
+	if(ur>M)
+		update_range(ul,ur,ut,rson);
+
+	pushUP(po);
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+
+// 扫描线，求矩形面积并。
+// 可以进行离散化，注意不能pushDown。
+// BIT[1]为高。
+
+#define lson L,M,lc
+#define rson M+1,R,rc
+#define lc po*2
+#define rc po*2+1
+
+using namespace std;
+
+struct BIAN
+{
+    double x,y1,y2;
+    int state;
+};
+
+BIAN bian[210];
+double BIT[210*4];		/////
+int COL[210*4];
+
+bool cmp(BIAN a,BIAN b)
+{
+    return a.x<b.x;
+}
+
+void pushUP(int L,int R,int po)
+{
+    if(COL[po])
+        //BIT[po];			// BIT[po]=len;
+    else if(L==R)
+        BIT[po]=0;
+    else
+        BIT[po]=BIT[lc]+BIT[rc];
+}
+
+void update(int ul,int ur,int ut,int L,int R,int po)
+{
+    if(ul<=L&&ur>=R)
+    {
+        COL[po]+=ut;
+        pushUP(L,R,po);
+
+        return;
+    }
+
+    int M=(L+R)/2;
+
+    if(ul<=M)
+        update(ul,ur,ut,lson);
+    if(ur>M)
+        update(ul,ur,ut,rson);
+
+    pushUP(L,R,po);
+}

@@ -1,0 +1,124 @@
+// Tarjan算法求无向图的割点与桥，复杂度 O(N+M)(注意：使用 NlogN 进行去重。)
+// 输入：边集E，n (使用getCUTP函数。)。
+// 输出：bridge，cutp(bool类型，判断是否是桥或割点。)，couBridge(桥的数量。)，add_block(删除该点后增加的连通块的数目。)
+// 注意：先使用init函数初始化，然后使用addEdge函数加边，然后使用getCUTP函数获得结果，注意重边的处理(本函数使用排序进行处理，也可使用临接矩阵去重。)
+
+const int MaxN=5005;
+const int MaxM=10010*2;
+
+struct Edge
+{
+	int to,next;
+};
+
+Edge E[MaxM];
+int head[MaxN],Ecou;
+int LOW[MaxN],DFN[MaxN];
+int couBridge;
+bool bridge[MaxM],cutp[MaxN];
+int add_block[MaxN];		// The number of bolcks that is added by deleting a point.(not the number of blocks of this new graph!!!)
+int Index;
+
+struct newEdge
+{
+	int u,v,num;
+
+	newEdge(int _u=0,int _v=0,int _num=0):u(_u),v(_v),num(_num) {};
+
+	bool operator < (const newEdge &a) const
+	{
+		if(u==a.u)
+			return v<a.v;
+
+		return u<a.u;
+	}
+
+	bool operator == (const newEdge &a) const
+	{
+		return u==a.u && v==a.v;
+	}
+};
+
+bool chongE[MaxM];			// Parallel edge.
+newEdge remE[MaxM];
+
+void Tarjan(int u,int pre)
+{
+	int v;
+	int couSon=0;
+
+	LOW[u]=DFN[u]=++Index;
+
+	for(int i=head[u];i!=-1;i=E[i].next)
+	{
+		v=E[i].to;
+
+		if(v==pre)			// !!!
+			continue;
+
+		if(!DFN[v])
+		{
+			++couSon;
+			Tarjan(v,u);
+
+			if(LOW[v]<LOW[u])
+				LOW[u]=LOW[v];
+
+			if(DFN[u]<LOW[v] && !chongE[i])
+			{
+				bridge[i]=1;
+				bridge[i^1]=1;		//
+				++couBridge;
+			}
+			if(u!=pre && DFN[u]<=LOW[v])
+			{
+				cutp[u]=1;
+				++add_block[u];
+			}
+		}
+		else if(DFN[v]<LOW[u])
+			LOW[u]=DFN[v];
+	}
+
+	if(u==pre && couSon>1)
+	{
+		cutp[u]=1;
+		add_block[u]=couSon-1;
+	}
+}
+
+void getCUTP(int n)
+{
+	sort(remE,remE+Ecou);
+
+	for(int i=1;i<Ecou;++i)
+		if(remE[i]==remE[i-1])
+			chongE[remE[i].num]=chongE[remE[i-1].num]=1;
+
+	for(int i=1;i<=n;++i)
+		if(!DFN[i])
+			Tarjan(i,i);
+}
+
+void addEdge(int u,int v)
+{
+	E[Ecou].to=v;
+	E[Ecou].next=head[u];
+	bridge[Ecou]=0;
+
+	chongE[Ecou]=0;
+	remE[Ecou]=newEdge(u,v,Ecou);
+
+	head[u]=Ecou++;
+}
+
+void init(int n)
+{
+	Ecou=couBridge=Index=0;
+
+	for(int i=1;i<=n;++i)
+	{
+		head[i]=-1;
+		cutp[i]=DFN[i]=add_block[i]=0;
+	}
+}

@@ -1,0 +1,148 @@
+// 静态Trie，时间复杂度 O(n)，空间复杂度 O(kn)。
+// 输入：字符串。
+// 输出：匹配值(灵活改动)。
+// 注意：使用init初始化。
+// 原理：建树。
+
+const int MaxNode=1000000;
+
+struct Trie
+{
+	int next[MaxNode][26],val[MaxNode];
+	int Tcou,root;
+
+	int newNode()
+	{
+		++Tcou;
+
+		memset(next[Tcou],0,sizeof(next[Tcou]));
+		val[Tcou]=0;
+
+		return Tcou;
+	}
+
+	void init()
+	{
+		Tcou=-1;
+		root=newNode();
+	}
+
+	Trie()
+	{
+		init();
+	}
+
+	void insert(int len,char s[])
+	{
+		int p=0;
+
+		for(int i=0;i<len;++i)
+		{
+			if(next[p][s[i]-'a']==0)
+				next[p][s[i]-'a']=newNode();
+
+			p=next[p][s[i]-'a'];
+		}
+
+		++val[p];
+	}
+
+	int match(int len,char s[])
+	{
+		int p=0;
+
+		for(int i=0;i<len;++i)
+		{
+			if(next[p][s[i]-'a']==0)
+				return 0;
+
+			p=next[p][s[i]-'a'];
+		}
+
+		return val[p];
+	}
+};
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+// 使用左儿子右兄弟表示的静态Trie，时间复杂度 O(kn)，空间复杂度 O(n)。
+// 输入：字符串。
+// 输出：匹配值(灵活改动)。
+// 注意：使用init初始化。
+// 原理：左儿子右兄弟法表示树。
+
+struct Trie
+{
+	char ch[MaxN];
+	int val[MaxN];
+	int next[MaxN],right[MaxN];
+	int Tcou;
+
+	void init()
+	{
+		Tcou=0;
+		val[0]=0;
+		next[0]=right[0]=-1;
+	}
+
+	void insert(int len,char s[])
+	{
+		bool ok;
+		int u=0,v;
+
+		for(int i=0;i<len;++i)
+		{
+			ok=0;
+
+			for(v=next[u];v!=-1;v=right[v])
+			{
+				if(ch[v]==s[i])
+				{
+					ok=1;
+					break;
+				}
+			}
+
+			if(!ok)
+			{
+				v=++Tcou;
+				right[v]=next[u];
+				next[u]=v;
+				next[v]=-1;
+				ch[v]=s[i];
+				val[v]=0;
+			}
+
+			u=v;
+		}
+
+		++val[u];
+	}
+
+	int match(int len,char s[])
+	{
+		bool ok=0;
+		int u=0,v;
+
+		for(int i=0;i<len;++i)
+		{
+			ok=0;
+
+			for(v=next[u];v!=-1;v=right[v])
+			{
+				if(ch[v]==s[i])
+				{
+					ok=1;
+					break;
+				}
+			}
+
+			if(!ok)
+				return 0;
+
+			u=v;
+		}
+
+		return val[u];
+	}
+};

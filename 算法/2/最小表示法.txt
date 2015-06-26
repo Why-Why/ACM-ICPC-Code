@@ -1,0 +1,33 @@
+// 求字符串的最小表示法，复杂度 O(n)。
+// 输入：len(原长度)，s。
+// 输出：最小字符串的位置。
+// 注意：s要预处理。
+// 原理：i和j不断向前。
+
+int MinRepre(int len,char s[])
+{
+
+//	for(int i=0;i<len;++i)		// 预处理。
+//		s[len+i]=s[i];
+//	s[len+len]=0;
+	
+	int i=0,j=1,k;
+	
+	while(i<len && j<len)
+	{
+		k=0;
+
+		while(s[i+k]==s[j+k] && k<len)
+			++k;
+
+		if(k==len)
+			return min(i,j);
+
+		if(s[i+k]>s[j+k])
+			i=max(j+1,i+k+1);
+		else
+			j=max(i+1,j+k+1);
+	}
+
+	return min(i,j);
+}

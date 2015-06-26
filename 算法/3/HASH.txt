@@ -1,0 +1,54 @@
+// HashMap求解。
+// 输入：hash值。
+// 输出：insert返回值id，不存在为0。
+// 注意：先要init，然后insert，其hash值可以用hash函数得到。
+// 原理：hash链表。
+// 小心被卡自然溢出，可以再加一个MOD，但要把unsigned改成signed的！！！
+
+const int HASH=100003;			// 100003,100019,10007,9973,99991,999983,1000003,1000033 是素数。
+const int MaxN=400005;
+
+struct HashMap
+{
+	int head[HASH],next[MaxN],Hcou;
+	unsigned long long key[MaxN];			// 记录key值。
+	int rem[MaxN];							// 维护key相同的值。
+
+	void init()
+	{
+		Hcou=0;
+		memset(head,-1,sizeof(head));
+	}
+
+	int insert(unsigned long long val,int id)		// id不能为0。
+	{
+		int h=val % HASH;
+
+		for(int i=head[h];i!=-1;i=next[i])
+			if(val==key[i])
+			{
+				int temp=rem[i];
+				rem[i]=id;					// 可以更改。
+				return temp;
+			}
+
+		rem[Hcou]=id;
+		key[Hcou]=val;
+		next[Hcou]=head[h];
+		head[h]=Hcou++;
+
+		return 0;
+	}
+
+	unsigned long long hash(int num[],int n)
+	{
+		unsigned long long ret=0;
+		unsigned long long seed=13131313;		// 13 131 1313 ...
+
+		for(int i=0;i<n;++i)
+			ret=ret*seed+num[i];
+
+		return ret;
+	}
+};
+

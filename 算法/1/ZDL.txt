@@ -1,0 +1,269 @@
+// 单源最短路，Dijkstra，邻接矩阵，复杂度 O(n^2)
+// 输入 start，cost，n。	(cost 中 -1 表示没有边相连接。)
+// 输出 从start开始的单源最短路 lowcost，fa。
+// 注意：权值必须为正，边单向双向均可，注意平行边问题。
+
+typedef int typeM;
+
+const int MaxN=1010;
+const int INF=10e7;					// 注意不要太大，防止溢出。
+
+bool vis[MaxN];
+int fa[MaxN];
+
+void Dijkstra(typeM cost[][MaxN],typeM lowcost[],int n,int start)
+{
+	for(int i=1;i<=n;++i)
+	{
+		lowcost[i]=INF;
+		fa[i]=-1;
+		vis[i]=0;
+	}
+	lowcost[start]=0;
+
+	for(int j=1;j<=n;++j)
+	{
+		int k=-1;
+		int minn=INF;
+
+		for(int i=1;i<=n;++i)
+			if(!vis[i] && lowcost[i]<minn)
+			{
+				minn=lowcost[i];
+				k=i;
+			}
+
+		if(k==-1)
+			break;
+		vis[k]=1;
+
+		for(int i=1;i<=n;++i)
+			if(!vis[i] && cost[k][i]>=0 && lowcost[k]+cost[k][i]<lowcost[i])
+			{
+				lowcost[i]=lowcost[k]+cost[k][i];
+				fa[i]=k;
+			}
+	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Dijkstra，优先队列优化，复杂度 O(E log E)。
+// 输入：边集E，n,start。
+// 输出：最短路。
+// 注意：E要先初始化(E[i].clear())，使用函数addEdge加边。
+
+const int MaxN=1010;
+const int INF=10e8;
+
+struct Node
+{
+	int v,val;
+
+	Node(int _v=0,int _val=0):v(_v),val(_val) {}
+	bool operator < (const Node &a) const
+	{
+		return val>a.val;
+	}
+};
+
+struct Edge
+{
+	int v,cost;
+
+	Edge(int _v=0,int _cost=0):v(_v),cost(_cost) {}
+};
+
+vector <Edge> E[MaxN];
+bool vis[MaxN];
+
+void Dijkstra(int lowcost[],int n,int start)
+{
+	priority_queue <Node> que;
+	Node qtemp;
+	int len;
+	int u,v,cost;
+
+	for(int i=1;i<=n;++i)
+	{
+		lowcost[i]=INF;
+		vis[i]=0;
+	}
+	lowcost[start]=0;
+
+	que.push(Node(start,0));
+
+	while(!que.empty())
+	{
+		qtemp=que.top();
+		que.pop();
+
+		u=qtemp.v;
+
+		if(vis[u])
+			continue;
+
+		vis[u]=1;
+
+		len=E[u].size();
+
+		for(int i=0;i<len;++i)
+		{
+			v=E[u][i].v;
+			cost=E[u][i].cost;
+
+			if(!vis[v] && lowcost[v]>lowcost[u]+cost)
+			{
+				lowcost[v]=lowcost[u]+cost;
+				que.push(Node(v,lowcost[v]));
+			}
+		}
+	}
+}
+
+inline void addEdge(int u,int v,int c)
+{
+	E[u].push_back(Edge(v,c));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// 单源最短路 Bellman_Ford，复杂度 O(VE)。
+// 边权正负均可。
+// 输入：边集E，n，start。
+// 输出：最短路，是否存在负权回路(false为存在)。
+// 注意：E要初始化(E.clear())，使用addEdge进行加边。
+
+const int INF=10e8;
+const int MaxN=1010;
+
+struct Edge
+{
+	int u,v,cost;
+
+	Edge(int _u=0,int _v=0,int _cost=0):u(_u),v(_v),cost(_cost) {}
+};
+
+vector <Edge> E;
+
+bool Bellman_Ford(int lowcost[],int n,int start)
+{
+	bool ok;
+	int u,v,c;
+	int len=E.size();
+
+	for(int i=1;i<=n;++i)
+		lowcost[i]=INF;
+	lowcost[start]=0;
+
+	for(int i=0;i<n-1;++i)
+	{
+		ok=0;
+
+		for(int j=0;j<len;++j)
+		{
+			u=E[j].u;
+			v=E[j].v;
+			c=E[j].cost;
+
+			if(lowcost[v]>lowcost[u]+c)
+			{
+				lowcost[v]=lowcost[u]+c;
+				ok=1;
+			}
+		}
+
+		if(!ok)
+			return 1;
+	}
+
+	for(int j=0;j<len;++j)
+		if(lowcost[E[j].v]>lowcost[E[j].u]+E[j].cost)
+			return 0;
+
+	return 1;
+}
+
+inline void addEdge(int u,int v,int c)
+{
+	E.push_back(Edge(u,v,c));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+// 单源最短路 SPFA，复杂度O(kE)，k不确定。
+// 可以把queue改成stack，可能会更快。
+// 输入：边集E，n，start。
+// 输出：最短路，是否存在负权回路(false为存在)。
+// 注意：E要初始化(E[i].clear())，使用addEdge进行加边。
+
+const int INF=10e8;
+const int MaxN=1010;
+
+struct Edge
+{
+	int v,cost;
+
+	Edge(int _v,int _cost):v(_v),cost(_cost) {}
+};
+
+vector <Edge> E[MaxN];
+bool vis[MaxN];
+int couNode[MaxN];
+
+bool SPFA(int lowcost[],int n,int start)
+{
+	queue <int> que;
+	int u,v,c;
+	int len;
+
+	for(int i=1;i<=n;++i)
+	{
+		lowcost[i]=INF;
+		vis[i]=0;
+		couNode[i]=0;
+	}
+	vis[start]=1;
+	lowcost[start]=0;
+	couNode[start]=1;
+
+	que.push(start);
+
+	while(!que.empty())
+	{
+		u=que.front();
+		que.pop();
+
+		vis[u]=0;
+		len=E[u].size();
+
+		for(int i=0;i<len;++i)
+		{
+			v=E[u][i].v;
+			c=E[u][i].cost;
+
+			if(lowcost[v]>lowcost[u]+c)
+			{
+				lowcost[v]=lowcost[u]+c;
+
+				if(!vis[v])
+				{
+					vis[v]=1;
+					++couNode[v];
+					que.push(v);
+
+					if(couNode[v]>n)			//这里应该是>=，也可能是>。
+						return 0;
+				}
+			}
+		}
+	}
+
+	return 1;
+}
+
+inline void addEdge(int u,int v,int c)
+{
+	E[u].push_back(Edge(v,c));
+}

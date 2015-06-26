@@ -1,0 +1,166 @@
+// Kosaraju算法求强连通分量，复杂度 O(N+M)。
+// 算法原理：先用原图DFS记录时间戳，然后使用逆序图DFS。
+// 输入：边集E，n。
+// 输出：Belong数组，lfcou（强连通分量的个数，从1开始。）。
+// 注意：先使用init初始化，然后使用addEdge加边。
+
+const int MaxN=110;
+const int MaxM=10010;
+
+struct Edge
+{
+	int to,next;
+};
+
+Edge E1[MaxM],E2[MaxM];
+int E1cou,E2cou;
+int head1[MaxN],head2[MaxN];
+int sortrem[MaxN],sortcou;
+bool vis1[MaxN],vis2[MaxN];
+int lfcou;
+int Belong[MaxN];
+
+void DFS1(int u)
+{
+	vis1[u]=1;
+
+	for(int i=head1[u];i!=-1;i=E1[i].next)
+		if(!vis1[E1[i].to])
+			DFS1(E1[i].to);
+
+	sortrem[sortcou++]=u;
+}
+
+void DFS2(int u)
+{
+	vis2[u]=1;
+	Belong[u]=lfcou;
+
+	for(int i=head2[u];i!=-1;i=E2[i].next)
+		if(!vis2[E2[i].to])
+			DFS2(E2[i].to);
+}
+
+void Kosaraju(int n)
+{
+	for(int i=1;i<=n;++i)
+		if(!vis1[i])
+			DFS1(i);
+
+	for(int i=sortcou-1;i>=0;--i)
+		if(!vis2[sortrem[i]])
+		{
+			++lfcou;
+			DFS2(sortrem[i]);
+		}
+}
+
+void addEdge(int u,int v)
+{
+	E1[E1cou].to=v;
+	E1[E1cou].next=head1[u];
+	head1[u]=E1cou++;
+
+	E2[E2cou].to=u;
+	E2[E2cou].next=head2[v];
+	head2[v]=E2cou++;
+}
+
+void init(int n)
+{
+	E1cou=E2cou=lfcou=sortcou=0;
+
+	for(int i=1;i<=n;++i)
+	{
+		head1[i]=-1;
+		head2[i]=-1;
+		vis1[i]=vis2[i]=0;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+// Tarjan算法求强连通分量，复杂度 O(N+M)。
+// 算法原理：DFS过程中记录DFN（时间戳），LOW（他及其子树指向的DFN最小的），然后LOW==DFN时为一个强连通分量的根。
+// 输入：边集E，n。
+// 输出：Belong，lfcou。
+// 注意：先使用init初始化，然后使用addEdge加边，使用getSCC函数获得输出。
+
+const int MaxN=110;
+const int MaxM=10010;
+
+struct Edge
+{
+	int to,next;
+};
+
+Edge E[MaxM];
+int head[MaxN],Ecou;
+int Stack[MaxN],top;
+int Belong[MaxN],lfcou;
+int Index;
+int DFN[MaxN],LOW[MaxN];
+bool inStack[MaxN];
+
+void Tarjan(int u)
+{
+	int v;
+
+	LOW[u]=DFN[u]=++Index;
+	Stack[top++]=u;
+	inStack[u]=1;
+
+	for(int i=head[u];i!=-1;i=E[i].next)
+	{
+		v=E[i].to;
+
+		if(!DFN[v])
+		{
+			Tarjan(v);
+
+			if(LOW[u]>LOW[v])
+				LOW[u]=LOW[v];
+		}
+		else if(inStack[v] && LOW[u]>DFN[v])
+			LOW[u]=DFN[v];
+	}
+
+	if(LOW[u]==DFN[u])
+	{
+		++lfcou;
+
+		do
+		{
+			v=Stack[--top];
+			inStack[v]=0;
+			Belong[v]=lfcou;
+		}
+		while(v!=u);
+	}
+}
+
+void getSCC(int n)
+{
+	for(int i=1;i<=n;++i)
+		if(!DFN[i])
+			Tarjan(i);
+}
+
+void addEdge(int u,int v)
+{
+	E[Ecou].to=v;
+	E[Ecou].next=head[u];
+	head[u]=Ecou++;
+}
+
+void init(int n)
+{
+	Ecou=Index=lfcou=top=0;
+
+	for(int i=1;i<=n;++i)
+	{
+		inStack[i]=DFN[i]=0;
+		head[i]=-1;
+	}
+}
+
