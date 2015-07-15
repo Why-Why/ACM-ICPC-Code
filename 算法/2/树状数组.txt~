@@ -35,20 +35,3 @@ int sum(int x)
 	return ret;
 }
 
-int find(int x)		// 寻找树状数组中和为x的第一个位置。
-{
-	int ans=0,sum=0;
-
-	for(int i=18;i>=0;--i)
-	{
-		ans+=(1<<i);
-
-		if(ans>N || sum+C[ans]>=x)
-			ans-=(1<<i);
-		else
-			sum+=C[ans];
-	}
-
-	return ans+1;
-}
-
