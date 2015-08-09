@@ -1,0 +1,104 @@
+// 使用ZKW线段树求动态RMQ，区间增加，区间查询。
+// 输入：原数组，操作。
+// 输出：询问。
+// 注意：数组不是N的两倍，应该是BaseM的两倍；先build，然后add或者query；从一开始，0和N+1也被用；区间修改和查询，维护差分。
+// 原理：维护差分，永久化标记，自底向上，对于中间的区间不用修改就行。
+
+const int MaxN=300005;
+const int INF=0x3f3f3f3f;
+
+int BaseM;
+int BIT[MaxN<<1];
+
+void build(int N)
+{
+	BaseM=1;
+	while(BaseM<N+2) BaseM<<=1;
+	memset(BIT,0,sizeof(BIT));
+
+	for(int i=1;i<=N;++i) scanf("%d",&BIT[BaseM+i]);
+	for(int i=BaseM-1;i>=1;--i) BIT[i]=min(BIT[i<<1],BIT[(i<<1)|1]);
+	for(int i=BaseM+N+1;i>=1;--i) BIT[i]-=BIT[i>>1];
+}
+
+void add(int ul,int ur,int ut)
+{
+	int temp;
+
+	for(ul+=BaseM-1,ur+=BaseM+1;ul^ur^1;ul>>=1,ur>>=1)
+	{
+		if(~ul&1) BIT[ul^1]+=ut;
+		if(ur&1) BIT[ur^1]+=ut;
+		
+		temp=min(BIT[ul],BIT[ul^1]);
+		BIT[ul]-=temp,BIT[ul^1]-=temp,BIT[ul>>1]+=temp;
+		temp=min(BIT[ur],BIT[ur^1]);
+		BIT[ur]-=temp,BIT[ur^1]-=temp,BIT[ur>>1]+=temp;
+	}
+
+	for(;ul^1;ul>>=1)
+	{
+		temp=min(BIT[ul],BIT[ul^1]);
+		BIT[ul]-=temp,BIT[ul^1]-=temp,BIT[ul>>1]+=temp;
+	}
+}
+
+int query(int ql,int qr)					// 如此处理之后应该没有问题了。
+{
+	int Lans=INF,Rans=INF;
+
+	for(ql+=BaseM-1,qr+=BaseM+1;ql^qr^1;ql>>=1,qr>>=1)
+	{
+		if(~ql&1) Lans=min(Lans,BIT[ql^1]);
+		if(qr&1) Rans=min(Rans,BIT[qr^1]);
+		if(Lans<INF) Lans+=BIT[ql>>1];
+		if(Rans<INF) Rans+=BIT[qr>>1];
+	}
+
+	Lans=min(Lans,Rans);
+	while(ql>1) Lans+=BIT[ql>>=1];
+
+	return Lans;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// 使用ZKW线段树求动态区间和，单点更新，区间查询。
+// 输入：原数组，操作。
+// 输出：询问。
+// 注意：数组不是N的两倍，应该是BaseM的两倍；先build，然后add或者query；从一开始，0和N+1也被用。
+// 原理：自底向上，非递归。
+
+const int MaxN=20000;
+
+int BIT[MaxN<<1];
+int BaseM;
+
+void build(int N)
+{
+	BaseM=1;
+	while(BaseM<N+2) BaseM<<=1;
+	memset(BIT,0,sizeof(BIT));
+
+	for(int i=1;i<=N;++i) scanf("%d",&BIT[BaseM+i]);
+	for(int i=BaseM-1;i>=1;--i) BIT[i]=BIT[i<<1]+BIT[(i<<1)|1];
+}
+
+void update(int up,int ut)
+{
+	for(BIT[up+=BaseM]=ut,up>>=1;up;up>>=1)
+		BIT[up]=BIT[up<<1]+BIT[(up<<1)|1];
+}
+
+int query(int ql,int qr)
+{
+	int ret=0;
+
+	for(ql+=BaseM-1,qr+=BaseM+1;ql^qr^1;ql>>=1,qr>>=1)
+	{
+		if(~ql&1) ret+=BIT[ql^1];
+		if(qr&1) ret+=BIT[qr^1];
+	}
+
+	return ret;
+}

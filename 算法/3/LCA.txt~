@@ -164,22 +164,17 @@ void BFS(int root)
 
 int query(int u,int v)
 {
-	int len;
-
 	if(dep[u]<dep[v])
 		swap(u,v);
 
-	for(len=0;(1<<len)<=dep[u];++len);			// !
-	--len;
-
-	for(int i=len;i>=0;--i)
-		if(dep[u]-(1<<i)>=dep[v])
+	for(int det=dep[u]-dep[v],i=0;det;det>>=1,++i)
+		if(det&1)
 			u=par[u][i];
 
 	if(u==v)
 		return u;
 
-	for(int i=len;i>=0;--i)
+	for(int i=LOG-1;i>=0;--i)
 		if(par[u][i]!=par[v][i])
 		{
 			u=par[u][i];

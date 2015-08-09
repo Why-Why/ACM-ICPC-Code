@@ -1,0 +1,137 @@
+// 树状数组+主席树求动态区间第K大，单点更新。
+// 输入：原数组，操作。
+// 输出：询问。
+// 注意：需要离线数据进行Hash，线段树维护数出现的频率；先init，然后更新Hash数组，然后Hash_init()，然后ChairTree_init()，然后操作；空间消耗很大。
+// 原理：多颗线段树，维护频率。
+
+const int MaxN=50010+10010;
+const int MaxM=10005;
+const int MaxNode=2600010;
+
+int Tcou;
+int TreeRoot[MaxN];
+int lson[MaxNode],rson[MaxNode],BIT[MaxNode];
+int BaseTree[MaxN];							// 对于初始序列的前缀建的树的根。
+
+int N;
+int num[MaxN];
+int Hnum[MaxN],Hcou;							// Hash相关，Hnum数组从1开始。
+
+inline int hash(int x)
+{
+	return lower_bound(Hnum+1,Hnum+Hcou+1,x)-Hnum;
+}
+inline int lowbit(int x)
+{
+	return x&(-x);
+}
+int insert(int old,int val,int d)
+{
+	int newRoot=Tcou++,ret=newRoot;
+	int L=1,R=Hcou,M;
+
+	BIT[newRoot]=BIT[old]+d;
+	while(R>L)
+	{
+		M=(L+R)>>1;
+
+		if(val<=M)
+		{
+			lson[newRoot]=Tcou++; rson[newRoot]=rson[old];
+			newRoot=lson[newRoot]; old=lson[old];
+			R=M;
+		}
+		else
+		{
+			lson[newRoot]=lson[old]; rson[newRoot]=Tcou++;
+			newRoot=rson[newRoot]; old=rson[old];
+			L=M+1;
+		}
+		BIT[newRoot]=BIT[old]+d;
+	}
+	return ret;
+}
+void add(int x,int val,int d)
+{
+	for(;x<=N;x+=lowbit(x)) TreeRoot[x]=insert(TreeRoot[x],val,d);
+}
+void update(int up,int ut)
+{
+	add(up,hash(num[up]),-1);
+	add(up,hash(ut),1);
+	num[up]=ut;
+}
+
+int use[MaxN];
+
+int sum(int x)
+{
+	int ret=0;
+	for(;x;x-=lowbit(x)) ret+=BIT[lson[use[x]]];
+	return ret;
+}
+int query(int ql,int qr,int K)
+{
+	int L=1,R=Hcou,M;
+	int temp;
+	int BaseL=BaseTree[ql-1],BaseR=BaseTree[qr];
+	
+	for(int i=ql-1;i;i-=lowbit(i)) use[i]=TreeRoot[i];
+	for(int i=qr;i;i-=lowbit(i)) use[i]=TreeRoot[i];
+
+	while(R>L)
+	{
+		M=(L+R)>>1;
+		temp=sum(qr)-sum(ql-1);
+		temp+=BIT[lson[BaseR]]-BIT[lson[BaseL]];
+
+		if(K<=temp)
+		{
+			for(int i=ql-1;i;i-=lowbit(i)) use[i]=lson[use[i]];
+			for(int i=qr;i;i-=lowbit(i)) use[i]=lson[use[i]];
+			BaseL=lson[BaseL]; BaseR=lson[BaseR];
+			R=M;
+		}
+		else
+		{
+			for(int i=ql-1;i;i-=lowbit(i)) use[i]=rson[use[i]];
+			for(int i=qr;i;i-=lowbit(i)) use[i]=rson[use[i]];
+			BaseL=rson[BaseL]; BaseR=rson[BaseR];
+			K-=temp; L=M+1;
+		}
+	}
+	return L;
+}
+int build_BIT(int L,int R)
+{
+	int root=Tcou++;
+
+	BIT[root]=0;
+
+	if(L!=R)
+	{
+		int M=(L+R)>>1;
+		lson[root]=build_BIT(L,M);
+		rson[root]=build_BIT(M+1,R);
+	}
+	return root;
+}
+void ChairTree_init(int num[])
+{
+	TreeRoot[0]=build_BIT(1,Hcou);
+
+	for(int i=1;i<=N;++i)
+	{
+		TreeRoot[i]=TreeRoot[0];
+		BaseTree[i]=insert(BaseTree[i-1],hash(num[i]),1);
+	}
+}
+void Hash_init()
+{
+	sort(Hnum+1,Hnum+Hcou+1);
+	Hcou=unique(Hnum+1,Hnum+Hcou+1)-Hnum-1;
+}
+void init()
+{
+	Tcou=Hcou=0;
+}

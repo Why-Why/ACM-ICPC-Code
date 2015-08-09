@@ -38,6 +38,8 @@
 
 using namespace std;
 
+const int INF=0x3f3f3f3f;
+
 const int remMax[36][2]={
     {1,1},{2,2},{4,3},{6,4},{12,6},
     {24,8},{36,9},{48,10},{60,12},
@@ -49,11 +51,52 @@ const int remMax[36][2]={
     {110880,144},{166320,160},{221760,168},{277200,180},
     {332640,192},{498960,200},{500001,200}};
 
-int findM(int x)
+int prime[20]={2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53};
+int best,ans,n;
+
+void dfs(int dep,int temp,int num)
 {
+	if(dep>=16)
+		return;
+
+	if(num>best)
+	{
+		best=num;
+		ans=temp;
+	}
+
+	if(num==best && ans>temp)
+		ans=temp;
+
+	for(int i=1;i<30;++i)
+	{
+		if(n/prime[dep]<temp)
+			break;
+
+		temp*=prime[dep];
+		
+		dfs(dep+1,temp,num*(i+1));
+	}
+}
+
+int times,ans2;
+
+void findM(int x)
+{
+	/*
     for(int i=0;i<35;++i)
         if(remMax[i][0]<=x&&remMax[i+1][0]>x)
             return i;
+	*/
+
+	best=0;
+	ans=0;
+	n=x;
+
+	dfs(0,1,1);
+
+	times=ans;
+	ans2=best;
 }
 
 const int MaxN=500005;
@@ -126,7 +169,6 @@ int main()
 	//freopen("in.txt","r",stdin);
 	//freopen("out.txt","w",stdout);
 
-	int temp,times,ans2;
 
 	while(~scanf("%d %d",&N,&K))
 	{
@@ -136,9 +178,7 @@ int main()
 			C[i]=lowbit(i);
 		}
 
-        temp=findM(N);
-        times=remMax[temp][0];
-        ans2=remMax[temp][1];
+		findM(N);
 
 		for(int i=1;i<times;++i)
 		{

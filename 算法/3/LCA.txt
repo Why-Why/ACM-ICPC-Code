@@ -85,7 +85,7 @@ void dfs(int u,int pre,int dep)
 void LCA_init(int root,int N)
 {
 	cou=0;
-	dfs(root,root,0,0);
+	dfs(root,root,0);
 	RMQ_init(2*N-1);
 }
 

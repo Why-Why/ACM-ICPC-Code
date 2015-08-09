@@ -43,17 +43,11 @@ int main()
 	//freopen("in.txt","r",stdin);
 	freopen("in.txt","w",stdout);
 
-	srand(time(0));
+	cout<<1<<endl;
+	cout<<5000<<endl;
 
-	for(int i=1;i<=10;++i)
-	{
-		int N=rand()%100+1;
-
-		cout<<N<<endl;
-
-		for(int j=1;j<=N;++j)
-			cout<<rand()%j<<' '<<j<<endl;
-	}
+	for(int i=0;i<5000;++i)
+		cout<<i*20<<' '<<1000000<<endl;
 	
 	return 0;
 }
