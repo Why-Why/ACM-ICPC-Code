@@ -152,7 +152,7 @@ double CalcArea(Point P[],int n)
 }
 
 // 判断点在线段上。
-bool OnSeg(Point &P,Line &L)
+bool OnSeg(Point &P,const Line &L)			// 注意！！！当P不太准确时这个函数十分不准确。
 {
 	return
 		sgn((L.s-P)^(L.e-P))==0 &&
@@ -191,7 +191,7 @@ int InPoly(Point &a,Point P[],int n)
 		side.s=P[i];
 		side.e=P[(i+1)%n];
 
-		if(OnSeg(P,side))
+		if(OnSeg(a,side))					// Maybe Wrong.
 			return 0;
 
 		if(sgn(side.s.y-side.e.y)==0)

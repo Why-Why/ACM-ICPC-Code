@@ -88,38 +88,89 @@ struct node
 priority_queue <node> que;
 bool vis[MaxN];
 
-int jiao(int a,int b,int c,int d)
+int jiao(int a,int b,int c,int d,int xiao)
 {
 	if(c>=b || a>=d)
 		return INF;
 
-	return max(a,c);
+	if(max(a,c)>=xiao)
+		return max(a,c);
+	return INF;
+}
+
+int getval(int s1,int t1,int T1,int s2,int T2,int xiao)
+{
+	int k;
+
+//	cout<<s1<<' '<<t1<<' '<<T1<<' '<<s2<<' '<<T2<<endl;
+
+	for(int d=0;d<T1*T2;++d)
+	{
+		if(s2+d*T2<xiao || s2-s1+d*T2<0)
+			continue;
+
+		k=(s2-s1+d*T2)/T1;
+//		cout<<k<<' '<<d<<endl;
+		if(s1+k*T1+t1>s2+d*T2)
+			return s2+d*T2;
+	}
+
+	return INF;
 }
 
 int getjiao(int s1,int t1,int T1,int s2,int t2,int T2,int xiao)
 {
 	int k;
 
-/*	if(s1>=xiao) k=0;
-	else k=(int)((xiao-s1+T1-1)/T1);
+	if(xiao>=s1 && xiao>=s2)
+	{
+		k=(int)((xiao-s1)/T1);
+		if(k*T1+s1+t1>xiao)
+		{
+			k=(int)((xiao-s2)/T2);
+			if(k*T2+s2+t2>xiao)
+				return xiao;
+		}
+	}
+
+	if(s1>=xiao) k=0;
+	else k=(int)((xiao-s1)/T1);
 	s1+=k*T1;
 
-	cout<<k<<endl;
-
 	if(s2>=xiao) k=0;
-	else k=(int)((xiao-s2+T2-1)/T2);
+	else k=(int)((xiao-s2)/T2);
 	s2+=k*T2;
 
-	cout<<k<<endl;
-
-	cout<<s1<<' '<<s2<<endl;
-
 	if(T1==T2)
-		return jiao(s1,s1+t1,s2,s2+t2);
-	else*/
+		return min( min( jiao(s1,s1+t1,s2,s2+t2,xiao),jiao(s1+T1,s1+T1+t1,s2+T2,s2+T2+t2,xiao) ),
+				min( jiao(s1,s1+t1,s2+T2,s2+T2+t2,xiao),jiao(s2,s2+t2,s1+T1,s1+T1+t1,xiao) ) );
 
+	return min(getval(s1,t1,T1,s2,T2,xiao),getval(s2,t2,T2,s1,T1,xiao));
+
+/*
 	{
 		for(int i=xiao;;++i)
+		{
+			k=(int)((i-s1)/T1);
+			if(k*T1+s1+t1>i)
+			{
+				k=(int)((i-s2)/T2);
+				if(k*T2+s2+t2>i)
+					return i;
+			}
+
+			if(T1==T2 && i-xiao>T1)
+				return INF;
+		}
+	}*/
+}
+
+int getjiao1(int s1,int t1,int T1,int s2,int t2,int T2,int xiao)
+{
+	int k;
+
+	{
+		for(int i=max(xiao,max(s1,s2));;++i)
 		{
 			k=(int)((i-s1)/T1);
 			if(k*T1+s1+t1>i)
@@ -190,6 +241,7 @@ void getans(int start)
 int ans[MaxN];
 int cou;
 
+
 int main()
 {
 	//freopen("in.txt","r",stdin);
@@ -241,7 +293,39 @@ int main()
 int main()
 {
 	int a,b,c,x,y,z,t;
+	int tt1,tt2;
+
+	srand(time(0));
+
+	for(int i=1;i<=10000;++i)
+	{
+		a=rand()%100;
+		b=rand()%100+1;
+		c=b+rand()%100;
+
+		x=rand()%100;
+		y=rand()%100+1;
+		z=y+rand()%100;
+
+		t=rand()%10000;
+
+		cout<<"AAA "<<a<<' '<<b<<' '<<c<<' '<<x<<' '<<y<<' '<<z<<' '<<t<<endl;
+
+		tt1=getjiao(a,b,c,x,y,z,t);
+	//	tt2=getjiao1(a,b,c,x,y,z,t);
+
+//		if(tt1==tt2)
+//			;
+//		else
+//			cout<<"NO\n"<<a<<' '<<b<<' '<<c<<' '<<x<<' '<<y<<' '<<z<<' '<<t<<endl<<tt1<<' '<<tt2<<endl;
+	}
+}*/
+/*
+int main()
+{
+	int a,b,c,x,y,z,t;
 
 	while(cin>>a>>b>>c>>x>>y>>z>>t)
-		cout<<getjiao(a,b,c,x,y,z,t)<<endl;
-}*/
+		cout<<getjiao(a,b,c,x,y,z,t)<<' '<<getjiao1(a,b,c,x,y,z,t)<<endl;
+}
+*/

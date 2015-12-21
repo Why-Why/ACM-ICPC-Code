@@ -110,7 +110,7 @@ int main()
 		sort(num+1,num+N+1,cmp);
 
 		for(int i=0;i<=N;++i)
-			dp[i].S=dp[i].X=0;
+			d[i].S=dp[i].X=0;
 		ans.S=ans.X=0;
 
 		for(int i=1;i<=N;++i)

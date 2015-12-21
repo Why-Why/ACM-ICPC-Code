@@ -75,6 +75,7 @@ void dfs2(int u)
 			v=E[i].to;
 			top[v]=v;
 			w[v]=++Tcou;
+			fw[w[v]]=v;				// !!!
 			
 			dfs2(v);
 		}
@@ -215,6 +216,7 @@ void dfs2(int u)
 			v=E[i].to;
 			top[v]=v;
 			w[v]=++Tcou;
+			fw[w[v]]=v;
 
 			dfs2(v);
 		}

@@ -1,7 +1,7 @@
 // Size Balanced Tree。
 // 输入：操作insert，erase。
 // 输出：find，rank，getKth，preNum，nextNum。
-// 注意：先init，然后操作；没有cou，每个节点最多存一个值，可重复，等于的往右边方；可以使用update维护其他东西。
+// 注意：先init，然后操作；没有cou，每个节点最多存一个值，可重复，等于的往右边放；可以使用update维护其他东西；对相等时处理会出现问题。
 // 原理：符合性质兄弟节点的两个儿子的size都比自己的size小。
 
 const int MaxN=2000005;
@@ -84,13 +84,13 @@ struct SBT
 		}
 		return 0;
 	}
-	int rank(int k)					// 比k小的个数。
+	int rank(int k)					// 小于等于k的个数。  ！！！
 	{
 		int x=root,ret=0;
 
 		while(x)
 		{
-			if(k>=key[x]) ret+=size[ch[x][0]]+(key[x]!=k);
+			if(k>=key[x]) ret+=size[ch[x][0]]+1;
 			x=ch[x][k>=key[x]];
 		}
 		return ret;

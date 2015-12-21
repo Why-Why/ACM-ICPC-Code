@@ -1,0 +1,205 @@
+// ━━━━━━神兽出没━━━━━━
+//      ┏┓       ┏┓
+//     ┏┛┻━━━━━━━┛┻┓
+//     ┃           ┃
+//     ┃     ━     ┃
+//     ████━████   ┃
+//     ┃           ┃
+//     ┃    ┻      ┃
+//     ┃           ┃
+//     ┗━┓       ┏━┛
+//       ┃       ┃
+//       ┃       ┃
+//       ┃       ┗━━━┓
+//       ┃           ┣┓
+//       ┃           ┏┛
+//       ┗┓┓┏━━━━━┳┓┏┛
+//        ┃┫┫     ┃┫┫
+//        ┗┻┛     ┗┻┛
+//
+// ━━━━━━感觉萌萌哒━━━━━━
+
+// Author        : WhyWhy
+// Created Time  : 2015年12月08日 星期二 12时53分02秒
+// File Name     : B.cpp
+
+#include <stdio.h>
+#include <string.h>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <queue>
+#include <map>
+#include <string>
+#include <math.h>
+#include <stdlib.h>
+#include <time.h>
+
+using namespace std;
+
+const int MaxN=15;
+
+struct HASHMAP {
+	static const int HASH=30007;
+	static const int MaxS=1500000;
+
+	int head[HASH],Hcou,next[MaxS];
+	unsigned int key[MaxS];
+	long long value[MaxS];
+
+	void init() {
+		Hcou=0;
+		memset(head,-1,sizeof(head));
+	}
+
+	void insert(unsigned int k,long long v) {
+		int h=k%HASH;
+
+		for(int i=head[h];i!=-1;i=next[i])
+			if(k==key[i]) {
+				value[i]+=v;
+				return;
+			}
+		key[Hcou]=k;
+		value[Hcou]=v;
+		next[Hcou]=head[h];
+		head[h]=Hcou++;
+	}
+
+	long long find(unsigned int k) {
+		int h=k%HASH;
+
+		for(int i=head[h];i!=-1;i=next[i])
+			if(key[i]==k) return value[i];
+		return 0;
+	}
+}dp[2];
+
+char map1[MaxN][MaxN];
+int N,M;
+int endnum;
+
+inline int pos(unsigned int sta,int p) {
+	return (sta & (3<<(p<<1)))>>(p<<1);
+}
+
+inline unsigned int set(unsigned int sta,int p,int v) {
+	return (sta & (~(3<<(p<<1)))) | (v<<(p<<1));
+}
+
+inline unsigned int set(unsigned int sta,int p1,int v1,int p2,int v2) {
+	sta=set(sta,p1,v1);
+	return set(sta,p2,v2);
+}
+
+int find(unsigned int sta,int p,int step,int f) {
+	int cou=0,t;
+	for(int i=p;;i+=step) {
+		t=pos(sta,i);
+		if(!cou && t==f) return i;
+		if(t==1) ++cou;
+		else if(t==2) --cou;
+	}
+}
+
+void getans_blank(int x,int y,int flag) {
+	unsigned int sta,nsta;
+	long long v;
+	int a,b,t;
+
+	for(int i=0;i<dp[flag].Hcou;++i) {
+		sta=dp[flag].key[i];
+		v=dp[flag].value[i];
+
+		a=pos(sta,y-1);
+		b=pos(sta,y);
+
+		if(!a && !b) { nsta=set(sta,y-1,1,y,2); dp[flag^1].insert(nsta,v); }
+		else if(a==1 && b==1) {
+			t=find(sta,y+1,1,2);
+			nsta=set(sta,t,1);
+			nsta=set(nsta,y-1,0,y,0);
+			dp[flag^1].insert(nsta,v);
+		}
+		else if(a==1 && b==2) {			// !!!
+			if(x*100+y==endnum) {		// 不加的话可过A题。
+				nsta=set(sta,y-1,0,y,0);
+				dp[flag^1].insert(nsta,v);
+			}
+		}
+		else if(a==2 && b==1) {
+			nsta=set(sta,y-1,0,y,0);
+			dp[flag^1].insert(nsta,v);
+		}
+		else if(a==2 && b==2) {
+			t=find(sta,y-2,-1,1);
+			nsta=set(sta,t,2);
+			nsta=set(nsta,y-1,0,y,0);
+			dp[flag^1].insert(nsta,v);
+		}
+		else {
+			nsta=set(sta,y-1,a+b,y,0);
+			dp[flag^1].insert(nsta,v);
+			nsta=set(sta,y-1,0,y,a+b);
+			dp[flag^1].insert(nsta,v);
+		}
+	}
+}
+
+void getans_block(int y,int flag) {
+	unsigned int sta;
+	long long v;
+
+	for(int i=0;i<dp[flag].Hcou;++i) {
+		sta=dp[flag].key[i];
+		v=dp[flag].value[i];
+		if(!pos(sta,y-1) && !pos(sta,y)) dp[flag^1].insert(sta,v);
+	}
+}
+
+void solve() {
+	int flag=0;
+	unsigned int sta;
+	long long v;
+	dp[0].init();
+	dp[0].insert(0,1);
+
+	for(int i=1;i<=N;++i) {
+		dp[flag^1].init();
+		for(int j=0;j<dp[flag].Hcou;++j) {
+			sta=dp[flag].key[j];
+			v=dp[flag].value[j];
+			if(!pos(sta,M)) dp[flag^1].insert(sta<<2,v);
+		}
+		flag^=1;
+
+		for(int j=1;j<=M;++j) {
+			dp[flag^1].init();
+			if(map1[i][j]=='.') getans_blank(i,j,flag);
+			else getans_block(j,flag);
+			flag^=1;
+		}
+	}
+
+//	cout<<dp[flag].find(0)<<endl;
+	printf("%I64d\n",dp[flag].find(0));
+}
+
+inline int getend() {
+	for(int i=N;i>=1;--i) for(int j=M;j>=1;--j) if(map1[i][j]=='.') { return i*100+j; }
+	return -1;
+}
+
+int main()
+{
+	//freopen("in.txt","r",stdin);
+	//freopen("out.txt","w",stdout);
+
+	scanf("%d %d",&N,&M);
+	for(int i=1;i<=N;++i) scanf("%s",map1[i]+1);
+	endnum=getend();
+	if(endnum==-1) { puts("0"); return 0; }
+	solve();
+
+	return 0;
+}
