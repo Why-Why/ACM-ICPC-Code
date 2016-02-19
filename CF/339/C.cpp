@@ -1,3 +1,43 @@
+// ━━━━━━神兽出没━━━━━━
+//      ┏┓       ┏┓
+//     ┏┛┻━━━━━━━┛┻┓
+//     ┃           ┃
+//     ┃     ━     ┃
+//     ████━████   ┃
+//     ┃           ┃
+//     ┃    ┻      ┃
+//     ┃           ┃
+//     ┗━┓       ┏━┛
+//       ┃       ┃
+//       ┃       ┃
+//       ┃       ┗━━━┓
+//       ┃           ┣┓
+//       ┃           ┏┛
+//       ┗┓┓┏━━━━━┳┓┏┛
+//        ┃┫┫     ┃┫┫
+//        ┗┻┛     ┗┻┛
+//
+// ━━━━━━感觉萌萌哒━━━━━━
+
+// Author        : WhyWhy
+// Created Time  : 2016年01月22日 星期五 22时49分43秒
+// File Name     : C.cpp
+
+#include <stdio.h>
+#include <string.h>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <queue>
+#include <set>
+#include <map>
+#include <string>
+#include <math.h>
+#include <stdlib.h>
+#include <time.h>
+
+using namespace std;
+
 const double eps=1e-8;
 const double PI=acos(-1.0);
 
@@ -73,7 +113,7 @@ struct Line
 // 两点间距离。
 double dist(const Point &a,const Point &b)
 {
-	return sqrt((a-b)*(a-b));
+	return ((a-b)*(a-b));
 }
 
 // 判断线段相交。
@@ -106,7 +146,7 @@ Point PointTOLine(Point &P,Line &L)
 }
 
 // 返回点到线段的最近点。
-Point PointToSeg(Point &P,Line &L)
+Point PointToSeg(Point &P,const Line &L)
 {
 	Point ret;
 	double t=((P-L.s)*(L.e-L.s))/((L.e-L.s)*(L.e-L.s));
@@ -217,66 +257,33 @@ bool isConvex(Point P[],int n)
 	return 1;
 }
 
-// 凸包，Graham算法，复杂度 O(NlogN)。
-// 编号0~(n-1)。
-// 返回凸包结果Stack[0,top-1]为凸包的点在list中的编号。
-// list会被排序。
+const int MaxN=100005;
 
-const int MaxN=1010;
+Point P,PP[MaxN];
 
-Point list[MaxN];
-
-bool _cmp(const Point &P1,const Point &P2)
-{
-	double temp=(P1-list[0])^(P2-list[0]);
-
-	if(sgn(temp)>0)
-		return 1;
-	else if(sgn(temp)==0 && sgn(dist(P1,list[0])-dist(P2,list[0]))<0)		// <= 会RE！！！
-		return 1;
-	else
-		return 0;
+double getdis(Point a,Point b) {
+	return dist(PointToSeg(P,Line(a,b)),P);
 }
 
-void Graham(int Stack[],int &top,int n)
-{
-	Point P0=list[0];
-	int k=0;
+double getdis1(Point a,Point b) {
+	return max(dist(a,P),dist(b,P));
+}
 
-	for(int i=1;i<n;++i)
-		if(sgn(P0.y-list[i].y)>0 || (sgn(P0.y-list[i].y)==0 && sgn(P0.x-list[i].x)>0))
-		{
-			P0=list[i];
-			k=i;
-		}
+int main() {
+	//freopen("in.txt","r",stdin);
+	//freopen("out.txt","w",stdout);
 
-	swap(list[k],list[0]);
-	sort(list+1,list+n,_cmp);
-
-	if(n==1)
-	{
-		top=1;
-		Stack[0]=0;
-
-		return;
+	double minn=1e100,maxn=-1.0;
+	int N;
+	scanf("%d",&N);
+	scanf("%lf %lf",&P.x,&P.y);
+	for(int i=0;i<N;++i) scanf("%lf %lf",&PP[i].x,&PP[i].y);
+	for(int i=0;i<N;++i) {
+		minn=min(minn,getdis(PP[i],PP[(i+1)%N]));
+		maxn=max(maxn,getdis1(PP[i],PP[(i+1)%N]));
 	}
 
-	if(n==2)
-	{
-		top=2;
-		Stack[0]=0;
-		Stack[1]=1;
-	}
-
-	Stack[0]=0;
-	Stack[1]=1;
-	top=2;
-
-	for(int i=2;i<n;++i)
-	{
-		while(top>1 && sgn((list[Stack[top-1]]-list[Stack[top-2]])^(list[i]-list[Stack[top-2]]))<=0)
-			--top;
-
-		Stack[top++]=i;
-	}
+	printf("%.10f\n",PI*(maxn-minn));
+	
+	return 0;
 }

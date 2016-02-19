@@ -24,11 +24,12 @@ bool judge(char *name)
 	return 1;
 }
 
-int count_file(char *name)
+int count_file(char *name,int &num)
 {
 	if(judge(name)==0) return 0;
 
 	cout<<name<<" : ";
+	++num;
 
 	freopen(name,"r",stdin);
 	int t;
@@ -43,7 +44,7 @@ int count_file(char *name)
 	return ret;
 }
 
-int count_dir(char *path)
+int count_dir(char *path,int &num)
 {
 	DIR *d;
 	struct dirent * file;
@@ -68,9 +69,9 @@ int count_dir(char *path)
 		if(stat(ts,&sb)<0) continue;
 
 		if(S_ISDIR(sb.st_mode))
-			ret+=count_dir(ts);
+			ret+=count_dir(ts,num);
 		else
-			ret+=count_file(ts);
+			ret+=count_file(ts,num);
 	}
 
 	return ret;
@@ -85,10 +86,12 @@ int main(int argc,char **argv)
 	}
 
 	cout<<endl;
-	int ans=count_dir(argv[1]);
+	int num=0;
+	int ans=count_dir(argv[1],num);
 
 	cout<<endl;
-	cout<<"All : "<<ans<<endl<<endl;
+	cout<<"File number: "<<num<<endl;
+	cout<<"Line number: "<<ans<<endl<<endl;
 
 	return 0;
 }
