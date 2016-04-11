@@ -1,0 +1,8 @@
+Hi, I'm Abel, a Dvorak Layout user.
+But I've only a Qwerty keyboard.
+The following lines are for testing:
+1234567890
+`~!@#$%^&*()+_-={}[]:"'<>,.?/\|
+ABCDEFuvwxyz
+AXJE>Ugk,qf;
+

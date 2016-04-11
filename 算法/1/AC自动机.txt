@@ -19,6 +19,7 @@ struct AC_auto
 	{
 		for(int i=0;i<MaxC;++i)
 			next[Tp][i]=-1;
+		success[Tp]=-1;
 		word[Tp++]=0;
 
 		return Tp-1;
@@ -76,6 +77,20 @@ struct AC_auto
 		}
 	}
 
+	void dfs(int p) {
+		if(success[p]!=-1) return;
+		if(fail[p]==root) { success[p]=root; return; }
+		if(word[fail[p]]) { success[p]=fail[p]; return; }
+		dfs(fail[p]);
+		success[p]=success[fail[p]];
+	}
+
+	void GetSuccess() {
+		success[root]=-1;
+		for(int i=root+1;i<Tp;++i)		// !!!
+			if(success[i]==-1) dfs(i);
+	}
+
 	int Query(char s[])
 	{
 		int p=root,temp;
@@ -93,8 +108,9 @@ struct AC_auto
 			while(temp!=root)
 			{
 				ret+=word[temp];
-				word[temp]=0;				//!!!
-				temp=fail[temp];
+				word[temp]=0;				// !!!
+				//temp=fail[temp];			// 需要时要修改。
+				temp=success[temp];
 			}
 		}
 		return ret;
