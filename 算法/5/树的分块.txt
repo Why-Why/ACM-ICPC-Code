@@ -1,0 +1,48 @@
+// 对树进行分块，复杂度O(N)。
+// 输入：树。
+// 输出：belong数组，mid数组。
+// 注意：先init，然后addEdge，然后dfs(1,-1)，然后要把栈里面剩下的标为另一个bcou；belong从1开始。
+// 原理：dfs，记录栈的当前底。
+// 其他：树的分块：三种，1，直接按照2N长的dfs序分块，2，分成每个3B大小以内的块，块通过省会连接，3，关键树分法。
+
+const int MaxN=1005;
+ 
+struct Edge {
+    int to,next;
+}E[MaxN<<1];
+ 
+int head[MaxN],Ecou;
+int N,B;
+ 
+int bcou,belong[MaxN],mid[MaxN];
+ 
+int stack[MaxN],top;
+ 
+void init() {
+    Ecou=0;
+    memset(head,-1,sizeof(head));
+}
+ 
+void addEdge(int u,int v) {
+    E[Ecou].to=v;
+    E[Ecou].next=head[u];
+    head[u]=Ecou++;
+}
+ 
+void add(int L,int id) {
+    ++bcou;
+    mid[bcou]=id;
+ 
+    while(top>L) belong[stack[--top]]=bcou;
+}
+ 
+void dfs(int u,int pre) {
+    stack[top++]=u;
+    int r=top;
+ 
+    for(int i=head[u];i!=-1;i=E[i].next)
+        if(E[i].to!=pre) {
+            dfs(E[i].to,u);
+            if(top-r>=B) add(r,u);
+        }
+}

@@ -6,3 +6,5 @@
 3，AC自动机：
 添加注意：对于insert("aaaaaaaa....."); 和 query("aaaaaaaaa........"); 时，query时将运算len*len/2次，所以要修改temp的那个while，添加一个数组使fail一次跳多步。
 AC自动机修改。
+
+4，KM算法错误！！！ 已更改。

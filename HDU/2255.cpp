@@ -1,3 +1,43 @@
+// ━━━━━━神兽出没━━━━━━
+//      ┏┓       ┏┓
+//     ┏┛┻━━━━━━━┛┻┓
+//     ┃           ┃
+//     ┃     ━     ┃
+//     ████━████   ┃
+//     ┃           ┃
+//     ┃    ┻      ┃
+//     ┃           ┃
+//     ┗━┓       ┏━┛
+//       ┃       ┃
+//       ┃       ┃
+//       ┃       ┗━━━┓
+//       ┃           ┣┓
+//       ┃           ┏┛
+//       ┗┓┓┏━━━━━┳┓┏┛
+//        ┃┫┫     ┃┫┫
+//        ┗┻┛     ┗┻┛
+//
+// ━━━━━━感觉萌萌哒━━━━━━
+
+// Author        : WhyWhy
+// Created Time  : 2016年04月23日 星期六 17时36分45秒
+// File Name     : 2255.cpp
+
+#include <stdio.h>
+#include <string.h>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <queue>
+#include <set>
+#include <map>
+#include <string>
+#include <math.h>
+#include <stdlib.h>
+#include <time.h>
+
+using namespace std;
+
 // Kuhn-Munkres算法(邻接矩阵)求二分图最大权匹配，复杂度 O(N^3)。
 // 输入：边集line(直接读入)，N。
 // 输出：最大匹配值，linker数组。
@@ -62,4 +102,19 @@ int KM(int N)
 	for(int i=1;i<=N;++i) if(linker[i]!=-1) ret+=line[linker[i]][i];
 
 	return ret;
+}
+
+int main() {
+	//freopen("in.txt","r",stdin);
+	//freopen("out.txt","w",stdout);
+
+	int N;
+	while(~scanf("%d",&N)) {
+		for(int i=1;i<=N;++i)
+			for(int j=1;j<=N;++j)
+				scanf("%d",&line[i][j]);
+		printf("%d\n",KM(N));
+	}
+	
+	return 0;
 }
