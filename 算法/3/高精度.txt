@@ -3,6 +3,7 @@
 // 输出：print，getNum。
 // 运算：+，＊，-，/，%，> 。
 // 不支持负数。
+// 注意溢出。
 
 class BigNum
 {
@@ -171,15 +172,15 @@ BigNum BigNum::operator * (const BigNum &b) const
 	return ret;
 }
 
-BigNum BigNum::operator / (const int b) const
+BigNum BigNum::operator / (const long long b) const
 {
 	BigNum ret;
-	int down=0;
+	long long down=0;
 
 	for(int i=len-1;i>=0;--i)
 	{
 		ret.num[i]=(num[i]+down*Mod)/b;
-		down=num[i]+down*Mod-ret.num[i]*b;
+		down=num[i]+down*Mod-ret.num[i]*b;			// 注意，这里可能会溢出，所以把b和down改成了long long。
 	}
 
 	ret.len=len;
