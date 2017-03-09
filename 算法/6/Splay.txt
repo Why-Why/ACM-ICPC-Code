@@ -1,0 +1,118 @@
+// 注意多用splay函数提高效率。
+// Splay树适用于区间连续操作。
+
+const int MaxN=100005;
+
+struct Splay {
+	int ch[MaxN][2],fa[MaxN];
+	int key[MaxN];
+
+	int root,tot;
+
+	// set fa[x] to be x's ch[x][k].
+	void rotate(int x,int k) {
+		int y=fa[x];
+		// pushDown(x); pushDown(y);
+		ch[y][!k]=ch[x][k];
+		fa[ch[x][k]]=y;
+		if(fa[y]) ch[fa[y]][ch[fa[y]][1]==y]=x;
+		fa[x]=fa[y];
+		ch[x][k]=y;
+		fa[y]=x;
+		// pushUP(y);
+	}
+
+	// 将r节点调整到goal节点下面，本来r在goal的很下面。
+	void splay(int r,int goal) {
+		// pushDown(r);
+
+		while(fa[r]!=goal) {
+			if(fa[fa[r]]==goal) {
+				// pushDown(fa[r]); pushDown(r);
+				rotate(r,ch[fa[r]][0]==r);
+			}
+			else {
+				// pushDown(fa[fa[r]]); pushDown(fa[r]); pushDown(r);
+				int y=fa[r];
+				int k=(ch[fa[y]][0]==y);
+				if(ch[y][k]==r) rotate(r,!k);
+				else rotate(y,k);		// ???
+				rotate(r,k);
+			}
+		}
+
+		//pushUP(r);
+		if(!goal) root=r;
+	}
+
+	//////////////////
+
+	void init() {
+		root=tot=0;
+		ch[0][0]=ch[0][1]=fa[0]=0;
+	}
+
+	void insert(int k) {
+		int p=root,last=root;
+
+		while(p) {
+			if(key[p]==k) {
+				// 重复时操作。
+				break;
+			}
+			last=p;
+			p=ch[p][key[p]<k];
+		}
+
+		if(!p) {
+			p=++tot;
+			ch[p][0]=ch[p][1]=0;
+			key[p]=k;
+			fa[p]=last;
+			ch[last][key[last]<k]=p;
+			splay(p,0);			// yes or not ?
+		}
+	}
+
+	// 找到key[x]==k，返回x。
+	int findPos(int k) {
+		int ret=-1;
+		int p=root;
+		int last;
+
+		while(p) {
+			if(key[p]==k) {
+				last=p;
+				ret=p;
+				break;
+			}
+			last=p;
+			p=ch[p][key[p]<k];
+		}
+		splay(last,0);
+
+		return ret;
+	}
+
+	// 合并a和b两个树，a中元素全部小于b中的。
+	int join(int a,int b) {
+		if(a) fa[a]=0;
+		if(b) fa[b]=0;
+		if(!b) return a;
+		if(!a) return b;
+
+		int c=a;
+		for(;ch[c][1];c=ch[c][1]);
+		splay(c,0);
+		ch[c][1]=b;
+		fa[b]=c;
+		return c;
+	}
+
+	void erase(int k) {
+		k=findPos(k);
+		if(k==-1) return;
+		splay(k,0);
+		root=join(ch[k][0],ch[k][1]);
+	}
+};

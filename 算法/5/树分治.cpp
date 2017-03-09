@@ -21,8 +21,10 @@ bool cow[MaxN];
 
 inline void init() {
 	Ecou=0;
-	for(int i=1;i<=N;++i)
+	for(int i=1;i<=N;++i) {
 		head[i]=-1;
+		vis[i]=0;				// 修改。
+	}
 }
 
 inline void addEdge(int u,int v,int w) {

@@ -24,7 +24,7 @@ class BigNum
 		BigNum operator + (const BigNum &) const;
 		BigNum operator - (const BigNum &) const;
 		BigNum operator * (const BigNum &) const;
-		BigNum operator / (const int) const;
+		BigNum operator / (const long long) const;
 		bool operator > (const BigNum &a) const;
 		int operator % (const int m) const;
 
@@ -80,6 +80,7 @@ bool BigNum::scan()
 		return 0;
 
 	changeStoNum(x);
+	return 1;		// change
 }
 
 void BigNum::print()

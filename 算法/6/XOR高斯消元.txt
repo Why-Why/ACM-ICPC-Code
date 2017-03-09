@@ -1,0 +1,42 @@
+const int MaxN=805;
+const int MaxM=805;
+
+bitset <MaxM+1> data[MaxN];
+
+// 高斯消元求XOR方程组。
+// 数组从1开始。
+// 输入N个方程，M-1个变量，data为系数矩阵（(data[i][1]*x[i][1])^(data[i][2]*x[i][2])...）。
+// 返回自由变量个数，-1为无解。
+// 注意：data的值会改变，多次求方程组需要备份data；要找所有自由变量需要找到所有为0的列。
+
+int GaussXOR(int N,int M) {
+	int r,c,rem;
+
+	for(r=1,c=1;r<=N && c<M;++r,++c) {
+		for(rem=r;rem<=N;++rem)
+			if(data[rem][c])
+				break;
+
+		if(rem>N) {
+			--r;
+			continue;
+		}
+
+		if(rem!=r) swap(data[rem],data[r]);
+		for(int i=r+1;i<=N;++i)
+			if(data[i][c]) data[i]^=data[r];
+	}
+
+	for(int i=r;i<=N;++i)
+		if(data[i][M])
+			return -1;
+	return M-r;				// yes or not ?
+
+	/*
+	// 得到解集。
+	for(int i=M-1;i>=1;--i) {
+		ans[i]=data[i][M];
+		for(int j=i+1;j<M;++j) ans[i]^=(data[i][j] & ans[j]);
+	}
+	*/
+}

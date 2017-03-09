@@ -2,6 +2,7 @@
 // 输入：N，S，T，边集E。
 // 输出：最大流，在最大流基础上的最小费用。
 // 注意：求最小流或者最大费用可以取相反数，先init，然后addEdge。
+// 注意：double类型的cost时，需要改为lowcost[v]>lowcost[u]+c+eps。
 // 原理：使用SPFA求每次的增广路。
 
 const int MaxN=300;

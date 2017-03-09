@@ -1,0 +1,111 @@
+const int MaxN=100005;
+
+// 注意：构建树的时候可以使用link来构建，但是注意加的新点的初始化，第一个点连接到0上面。
+
+struct LCT {
+	// Splay.
+	int ch[MaxN][2],rev[MaxN];
+	int que[MaxN];
+
+	// 对于一棵Splay的根来说是原树中当前链的最顶端的父亲节点，其他节点来说是Splay中的父亲节点。
+	int Fa[MaxN];
+
+	// 判断u是否是Splay的根。
+	bool isRoot(int u) {
+		if(!Fa[u]) return 1;
+		return ch[Fa[u]][0]!=u && ch[Fa[u]][1]!=u;
+	}
+
+	void Rotate(int u) {
+		int k=(ch[Fa[u]][1]==u);
+		int x=Fa[u],y=Fa[x];
+		Fa[u]=y;
+		if(!isRoot(x)) ch[y][ch[y][1]==x]=u;
+		ch[x][k]=ch[u][!k];
+		Fa[ch[u][!k]]=x;
+		ch[u][!k]=x;
+		Fa[x]=u;
+
+		// pushUP(x);
+		// pushUP(u);
+	}
+
+	void pushDown(int u) {
+		if(rev[u]) {
+			rev[ch[u][0]]^=1;
+			swap(ch[ch[u][0]][0],ch[ch[u][0]][1]);
+			rev[ch[u][1]]^=1;
+			swap(ch[ch[u][1]][0],ch[ch[u][1]][1]);
+			rev[u]^=1;
+		}
+
+		// 其他需要维护的值。
+	}
+
+	// 使u成为其所在的Splay的根节点。
+	void Splay(int u) {
+		int top=0,x,y;
+
+		que[top++]=u;
+		for(int i=u;!isRoot(i);i=Fa[i]) que[top++]=Fa[i];
+		while(top) pushDown(que[--top]);
+
+		while(!isRoot(u)) {
+			x=Fa[u];
+			y=Fa[x];
+
+			if(!isRoot(x)) {
+				if((ch[y][0]==x)==(ch[x][0]==u)) Rotate(x);		// yes or not ?
+				else Rotate(u);
+			}
+			Rotate(u);
+		}
+	}
+
+	////////
+
+	void initNode(int u) {
+		ch[u][0]=ch[u][1]=0;
+		rev[u]=0;
+		Fa[u]=0;
+	}
+
+	void init() {
+		initNode(0);
+	}
+
+	void access(int u) {
+		int t=0;
+		while(u) {
+			Splay(u);
+			ch[u][1]=t;
+			// pushUP(u);
+			t=u;
+			u=Fa[u];
+		}
+	}
+
+	// 使u成为原树的根。
+	void makeRoot(int u) {
+		access(u);
+		Splay(u);
+		rev[u]^=1;
+		swap(ch[u][0],ch[u][1]);
+	}
+
+	// 让y成为x的儿子。
+	void link(int x,int y) {
+		makeRoot(y);
+		Fa[y]=x;
+		Splay(y);			// Why Need This ?
+	}
+
+	// 分裂x和y之间的边（应该要保证有边）。
+	void cut(int x,int y) {
+		makeRoot(x);
+		access(y);
+		Splay(y);
+		ch[y][0]=Fa[x]=0;
+		// pushUP(y);
+	}
+};
